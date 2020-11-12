@@ -1,0 +1,68 @@
+/* 
+ * File:   lcd_clock.c
+ * Author: marsellino medhat
+ *
+ * Created on 10 November 2020, 16:49
+ */
+
+#include "application.h"
+
+
+#if CHAR_LCD_MODE==4
+char_lcd_t lcd = {
+                  .data_portname = PORT_D,
+                  .data_pin4 = pin0,
+                  .data_pin5 = pin1,
+                  .data_pin6 = pin2,
+                  .data_pin7 = pin3,
+                  .en_portname = PORT_D,
+                  .rs_portname = PORT_D,
+                  .en_pin_num = pin5,
+                  .rs_pin_num = pin4
+             };
+#elif CHAR_LCD_MODE == 8
+char_lcd_t lcd2 = {
+                  .data_portname = PORT_C,
+                  .en_portname = PORT_D,
+                  .rs_portname = PORT_D,
+                  .en_pin_num = pin5,
+                  .rs_pin_num = pin4
+             };
+#endif
+
+int main() {
+    lcd_init(&lcd2);
+     char hours[3],minutes[3],seconds[3];
+    lcd_send_string_pos(&lcd2,"time: ",1,1);
+    lcd_send_string_pos(&lcd2,":",1,8);
+    lcd_send_string_pos(&lcd2,":",1,11);
+    while(1)
+    {   
+        lcd_send_string_pos(&lcd2,"time: ",1,1);
+        lcd_send_string_pos(&lcd2,":",1,8);
+        lcd_send_string_pos(&lcd2,":",1,11);
+        for(char hour=0;hour<24;hour++)
+        {
+                 char_to_string(hour,hours);
+                 lcd_send_string_pos(&lcd2,hours,1,6);
+            for(char mins=0;mins<60;mins++)
+            {
+                    char_to_string(mins,minutes);
+                    lcd_send_string_pos(&lcd2,minutes,1,9);
+                    for(char sec=0;sec<60;sec++)
+                    {
+                        char_to_string(sec,seconds);
+                        lcd_send_string_pos(&lcd2,seconds,1,12);
+                        //__delay_ms(100);
+                    }
+                    lcd_send_string_pos(&lcd2,"  ",1,12);
+            }
+            lcd_send_string_pos(&lcd2,"  ",1,9);
+        }
+        clear_lcd(&lcd2);
+        __delay_ms(1000);
+        
+    }
+    return (EXIT_SUCCESS);
+}
+
