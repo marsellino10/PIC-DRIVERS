@@ -1,0 +1,104 @@
+/* 
+ * File:   calculater.c
+ * Author: marsellino medhat
+ *
+ * Created on 17 November 2020, 18:49
+ */
+
+#include "application.h"
+
+char_lcd_t lcd = {
+                  .data_portname = PORT_D,
+                  .data_pin4 = pin0,
+                  .data_pin5 = pin1,
+                  .data_pin6 = pin2,
+                  .data_pin7 = pin3,
+                  .en_portname = PORT_D,
+                  .rs_portname = PORT_D,
+                  .en_pin_num = pin5,
+                  .rs_pin_num = pin4
+             };
+
+keypad key = {.port_name_out = PORT_C,
+              .pin0_out = pin0,
+              .pin1_out = pin1,
+              .pin2_out = pin2,
+              .pin3_out = pin3,
+              .port_name_in = PORT_C,
+              .pin0_in = pin4,
+              .pin1_in = pin5,
+              .pin2_in = pin6,
+              .pin3_in = pin7
+             };
+unsigned char value;
+unsigned char arr[4];
+int x,y,z,i=0;
+char s[3];
+int main() {
+    lcd_init(&lcd);
+    keypad_init(&key);
+     
+    while(1)
+    {   
+        while(i<4)
+        {
+            do{
+             value = keypad_read(&key);
+            }
+             while(value == 0);
+        
+             if(value == 'c')
+             {
+                 clear_lcd(&lcd);
+                 i = -1;
+             }
+             else{
+                 arr[i] = value;
+                 lcd_send_char(&lcd,value);
+             }   
+            i++;
+        }
+        i=0;
+        if(arr[1]=='+' && arr[3]=='=')
+        {
+             x = (int)(arr[0])-48;
+             y = (int)(arr[2])-48;
+             z = x+y;
+            int_to_string(z,s);
+            lcd_send_string(&lcd,s);
+        }
+        else if(arr[1]=='-' && arr[3]=='=')
+        {
+             x = (int)(arr[0])-48;
+             y = (int)(arr[2])-48;
+             z = x-y;
+            int_to_string(z,s);
+            lcd_send_string(&lcd,s);
+        }
+        else if(arr[1] == '*' && arr[3] == '=')
+        {
+             x = (int)(arr[0])-48;
+             y = (int)(arr[2])-48;
+             z = x*y;
+            int_to_string(z,s);
+            lcd_send_string(&lcd,s);
+        }
+        if(arr[1]=='/' && arr[3] == '=')
+        {
+             x = (int)(arr[0])-48;
+             y = (int)(arr[2])-48;
+             if(y == 0)
+             {
+                 clear_lcd(&lcd);
+                 lcd_send_string(&lcd,"No meaning");
+                 __delay_ms(1000);
+                 break;
+             }
+             z = x/y;
+            int_to_string(z,s);
+            lcd_send_string(&lcd,s);
+        }
+        
+    }
+    return (EXIT_SUCCESS);
+}
